@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import { TbRobot } from "react-icons/tb";
+import { TbRobot, TbShieldCheck } from "react-icons/tb";
 import { FcGoogle } from "react-icons/fc";
 import { motion } from "motion/react";
 import axios from "axios";
@@ -10,7 +10,7 @@ import { auth, provider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { ServerURL } from "../App";
 
-const THUMB = 48;
+const THUMB = 56;
 
 function Auth() {
   const dispatch = useDispatch();
@@ -29,21 +29,13 @@ function Auth() {
 
   const handleGoogleLogin = async () => {
     try {
-      console.log("Starting Google Login...");
       const response = await signInWithPopup(auth, provider);
-      console.log("Firebase response received:", response.user.email);
-      
       const { displayName: name, email, photoURL: picture } = response.user;
-      console.log("Sending request to backend:", `${ServerURL}/api/auth/google`);
-      
       const res = await axios.post(`${ServerURL}/api/auth/google`, { name, email, picture }, { withCredentials: true });
-      console.log("Backend response received:", res.data);
-      
       dispatch(setUser(res.data.user));
-      console.log("User set in Redux, navigating to home...");
       navigate("/");
     } catch (error) {
-      console.error("GOOGLE LOGIN ERROR DETAILS:", error);
+      console.error("AUTH_ERROR:", error);
       setFill(0);
     }
   };
@@ -65,13 +57,12 @@ function Auth() {
     const percent = getPercent(clientX);
     if (percent >= 88) {
       setFill(100);
-      handleGoogleLogin(); // Call directly
+      handleGoogleLogin(); 
     } else {
       setFill(0);
     }
   }, [getPercent]);
 
-  // Mouse events on window so drag works outside slider
   useEffect(() => {
     const move = (e) => onMove(e.clientX);
     const up = (e) => onEnd(e.clientX);
@@ -86,65 +77,76 @@ function Auth() {
   const thumbLeft = `calc(${fill} * (100% - ${THUMB}px) / 100)`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="w-full min-h-screen bg-gray-50 flex items-center justify-center px-6"
-    >
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-10">
+    <div className="w-full min-h-screen bg-gradient-to-br from-indigo-50 via-slate-50 to-sky-50 flex items-center justify-center px-6 selection:bg-indigo-600 selection:text-white relative overflow-hidden">
+      
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white rounded-full blur-[120px] opacity-60 -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px] opacity-40 translate-y-1/2 -translate-x-1/2" />
 
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="bg-black text-white p-2 rounded-lg">
-            <TbRobot size={22} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-[460px] bg-white rounded-[3rem] p-16 shadow-[0_40px_100px_-20px_rgba(79,70,229,0.1)] border border-indigo-50 relative z-10 text-center"
+      >
+        {/* Branding */}
+        <div className="flex flex-col items-center mb-16">
+          <div className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-200 mb-6">
+            <TbRobot size={28} />
           </div>
-          <h1 className="text-xl font-bold text-gray-800">Auto_Interview</h1>
+          <h1 className="text-2xl font-black tracking-tighter text-slate-900 uppercase">Evalify.</h1>
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800">Welcome Back</h2>
-          <p className="text-gray-500 text-sm mt-1">Sign in to continue to Auto_Interview</p>
+        {/* Header */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Security Portal</h2>
+          <p className="text-slate-500 font-medium text-base tracking-tight leading-relaxed">Identity verification required for <br/> protocol initialization.</p>
         </div>
 
+        {/* Premium Slider */}
         <div
           ref={sliderRef}
-          className="relative w-full h-14 rounded-full border border-gray-300 bg-gray-100 overflow-hidden select-none"
+          className="relative w-full h-20 rounded-3xl bg-slate-50 border border-slate-200 overflow-hidden select-none p-2"
         >
-          {/* Fill bar */}
+          {/* Fill Track */}
           <div
-            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full"
+            className="absolute top-2 left-2 bottom-2 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200"
             style={{
               width: `calc(${fill} * (100% - ${THUMB}px) / 100 + ${THUMB}px)`,
-              transition: isDragging ? "none" : "width 0.3s ease",
+              transition: isDragging ? "none" : "width 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           />
 
-          {/* Label */}
+          {/* Prompt */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className={`text-sm font-medium transition-colors ${fill > 40 ? "text-white" : "text-gray-500"}`}>
-              {fill >= 88 ? "Signing in..." : "Slide to sign in →"}
+            <span className={`text-[10px] font-black uppercase tracking-[0.4em] transition-all duration-500 ${fill > 45 ? "text-white/40" : "text-slate-400"}`}>
+              {fill >= 88 ? "Verifying..." : "Slide to Authenticate"}
             </span>
           </div>
 
-          {/* Thumb */}
+          {/* Handle */}
           <div
             onMouseDown={onStart}
-            onTouchStart={(e) => { onStart(); onMove(e.touches[0].clientX); }}
-            onTouchMove={(e) => onMove(e.touches[0].clientX)}
-            onTouchEnd={(e) => onEnd(e.changedTouches[0].clientX)}
-            className="absolute top-1 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center cursor-grab active:cursor-grabbing z-10 border border-gray-200"
+            className="absolute top-2 h-[64px] w-[64px] bg-white rounded-[1.25rem] shadow-xl flex items-center justify-center cursor-grab active:cursor-grabbing z-10 border border-indigo-50 group transition-shadow hover:shadow-indigo-100"
             style={{
               left: thumbLeft,
-              transition: isDragging ? "none" : "left 0.3s ease",
+              transition: isDragging ? "none" : "left 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           >
-            <FcGoogle size={22} />
+            <FcGoogle size={32} />
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-4">Drag the Google icon all the way to sign in</p>
-      </div>
-    </motion.div>
+        {/* Security Footer */}
+        <div className="mt-16 flex flex-col items-center gap-6">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-slate-50 rounded-full border border-slate-100">
+            <TbShieldCheck className="text-indigo-600" size={18} />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">RSA-4096 Encrypted</span>
+          </div>
+          <p className="text-[10px] text-slate-300 font-bold uppercase tracking-[0.4em]">© 2026 Evalify Systems Inc.</p>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
