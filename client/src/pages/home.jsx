@@ -1,219 +1,291 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { TbRobot, TbArrowRight, TbChevronRight, TbCheck, TbFileText, TbVideo, TbLock, TbChartBar } from "react-icons/tb";
-import { motion, AnimatePresence } from "motion/react";
+import { TbRobot, TbArrowRight, TbFileText, TbVideo, TbShieldCheck, TbChartBar, TbSparkles } from "react-icons/tb";
 
-// Assets
-import resumeImg from "../assets/resume.png";
-import aiImg from "../assets/ai-ans.png";
-import confiImg from "../assets/confi.png";
-import engImg from "../assets/engineering.jpeg";
-import govtImg from "../assets/govt job.jpeg";
-import medImg from "../assets/medical.jpeg";
-import mbaImg from "../assets/mba.jpeg";
-import teachImg from "../assets/teaching.png";
-import startupImg from "../assets/stratup.jpeg";
-import hrImg from "../assets/HR.png";
-import mmImg from "../assets/MM.png";
-
-const careerData = {
-  "Engineering": { icon: "⚙️", color: "bg-blue-50 text-blue-600", image: engImg },
-  "Government": { icon: "🏛️", color: "bg-amber-50 text-amber-600", image: govtImg },
-  "Medical": { icon: "🏥", color: "bg-rose-50 text-rose-600", image: medImg },
-  "Management": { icon: "📊", color: "bg-emerald-50 text-emerald-600", image: mbaImg },
-  "Law": { icon: "⚖️", color: "bg-purple-50 text-purple-600", image: mmImg },
-  "Teaching": { icon: "📚", color: "bg-sky-50 text-sky-600", image: teachImg },
-  "Startup": { icon: "🚀", color: "bg-orange-50 text-orange-600", image: startupImg },
-  "Corporate": { icon: "🏢", color: "bg-slate-100 text-slate-600", image: hrImg },
-};
-
-const features = [
-  { icon: <TbFileText size={28} />, title: "Precision Parsing", desc: "Our AI extracts high-impact data points from your resume instantly.", color: "text-indigo-600 bg-indigo-50" },
-  { icon: <TbVideo size={28} />, title: "Neural Interview", desc: "Experience a lifelike simulation with an AI that understands nuance.", color: "text-sky-600 bg-sky-50" },
-  { icon: <TbLock size={28} />, title: "Secure Protocol", desc: "Advanced proctoring ensures a professional and focused session.", color: "text-violet-600 bg-violet-50" },
-  { icon: <TbChartBar size={28} />, title: "Quantified Data", desc: "Get measurable feedback on confidence, pace, and accuracy.", color: "text-blue-600 bg-blue-50" },
+const careerData = [
+  { name: "Engineering", icon: "⚙️" },
+  { name: "Government", icon: "🏛️" },
+  { name: "Medical", icon: "🏥" },
+  { name: "Management", icon: "📊" },
+  { name: "Law", icon: "⚖️" },
+  { name: "Teaching", icon: "📚" },
+  { name: "Startup", icon: "🚀" },
+  { name: "Corporate", icon: "🏢" },
 ];
 
-function CareerSelector({ onStart }) {
-  const [selected, setSelected] = useState("");
+const features = [
+  { icon: <TbFileText size={28} />, title: "Resume Parsing", desc: "AI extracts key data points from your resume to craft targeted questions." },
+  { icon: <TbVideo size={28} />, title: "Live Simulation", desc: "Face a lifelike AI interviewer that adapts to your responses in real time." },
+  { icon: <TbShieldCheck size={28} />, title: "Smart Proctoring", desc: "Advanced monitoring ensures a focused, professional session every time." },
+  { icon: <TbChartBar size={28} />, title: "Deep Analytics", desc: "Get scored on confidence, accuracy, communication, and more." },
+];
 
-  return (
-    <div className="py-32 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-20">
-          <h2 className="section-title">Professional Verticals</h2>
-          <p className="section-desc">Select your domain for a targeted assessment simulation.</p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {Object.entries(careerData).map(([name, data]) => (
-            <button
-              key={name}
-              onClick={() => setSelected(name)}
-              className={`group p-10 rounded-[2.5rem] border transition-all duration-500 text-center ${selected === name ? "border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-50 shadow-xl" : "border-slate-100 bg-white hover:border-slate-300 shadow-sm"}`}
-            >
-              <div className={`w-16 h-16 ${data.color} rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6 group-hover:scale-110 transition-transform`}>
-                {data.icon}
-              </div>
-              <h3 className="text-lg font-black text-slate-900">{name}</h3>
-              <div className={`mt-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${selected === name ? "text-indigo-600 opacity-100" : "text-slate-300 opacity-0 group-hover:opacity-100"}`}>
-                Initialize
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <AnimatePresence>
-          {selected && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="mt-16 flex justify-center">
-              <button onClick={() => onStart({ category: selected })} className="btn-primary flex items-center gap-3 text-lg px-16 py-5">
-                Begin Assessment <TbArrowRight size={20} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
+const steps = [
+  { num: "01", title: "Upload Resume", desc: "Drop your PDF and let AI analyze your profile instantly." },
+  { num: "02", title: "Start Interview", desc: "Answer questions from a real-time AI interviewer." },
+  { num: "03", title: "Get Results", desc: "Receive detailed feedback and a performance score." },
+];
 
 function Home() {
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.user);
+  const { user } = useSelector((s) => s.user);
+  const [selected, setSelected] = useState("");
 
-  const handleStart = (selected) => {
+  const handleStart = () => {
     if (!user) { navigate("/auth"); return; }
-    navigate("/upload-resume", { state: { careerPath: selected } });
+    navigate("/upload-resume", { state: { careerPath: { category: selected } } });
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      
-      {/* Designer Header */}
-      <nav className="glass-nav h-24 px-10 sm:px-20 flex items-center justify-between">
-        <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate("/")}>
-          <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
-            <TbRobot size={24} />
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+
+      {/* Navbar */}
+      <nav className="glass-nav">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate("/")}>
+            <div className="w-11 h-11 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <TbRobot size={22} className="text-white" />
+            </div>
+            <span className="font-black text-xl tracking-tight">Evalify</span>
           </div>
-          <span className="font-black text-2xl tracking-tighter text-slate-900 uppercase">Evalify.</span>
-        </div>
-        
-        <div className="flex items-center gap-8">
-          {user ? (
-            <>
-              <div className="hidden lg:flex flex-col items-end">
-                <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Available Sessions</span>
-                <span className="text-sm font-black text-slate-900">{user.credits}</span>
-              </div>
-              <div onClick={() => navigate("/profile")} className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden hover:border-indigo-600 transition-all shadow-sm">
-                {user.picture ? <img src={user.picture} alt="" className="w-full h-full object-cover" /> : <span className="font-bold text-slate-400">{(user.name?.[0] || "U").toUpperCase()}</span>}
-              </div>
-              <button onClick={() => navigate("/upload-resume")} className="btn-primary">Get Started</button>
-            </>
-          ) : (
-            <button onClick={() => navigate("/auth")} className="btn-primary">Authenticate</button>
-          )}
+
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <div className="hidden sm:flex flex-col items-end">
+                  <span className="text-xs text-gray-500 font-medium">Credits</span>
+                  <span className="text-sm font-bold">{user.credits}</span>
+                </div>
+                <div onClick={() => navigate("/profile")} className="w-10 h-10 rounded-full border-2 border-gray-200 overflow-hidden cursor-pointer hover:border-black transition-all hover:scale-110">
+                  {user.picture
+                    ? <img src={user.picture} alt="" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center bg-gray-100 text-sm font-bold">{(user.name?.[0] || "U").toUpperCase()}</div>
+                  }
+                </div>
+                <button className="btn-primary" onClick={() => navigate("/upload-resume")}>
+                  Start Interview
+                </button>
+              </>
+            ) : (
+              <button className="btn-primary" onClick={() => navigate("/auth")}>
+                Get Started
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
-      {/* Modern Hero Section */}
-      <section className="relative pt-40 pb-32 px-10 bg-gradient-to-b from-indigo-50/50 to-white overflow-hidden">
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-flex items-center gap-2 px-5 py-2 bg-white text-indigo-600 text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-10 shadow-sm border border-indigo-50">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
-              Next-Gen Simulation protocol
-            </span>
-            <h1 className="text-6xl sm:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-12">
-              Master the art of the <br /> <span className="text-gradient">Professional Story.</span>
-            </h1>
-            <p className="text-slate-500 text-xl sm:text-2xl font-medium max-w-3xl mx-auto mb-16 leading-relaxed">
-              Evalify uses high-fidelity AI to simulate pressurized interview environments. No guesswork. Just precision practice.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <button onClick={() => navigate(user ? "/upload-resume" : "/auth")} className="btn-primary text-lg px-12 py-5 w-full sm:w-auto">
-                Launch Assessment
-              </button>
-              <button className="btn-secondary text-lg px-12 py-5 w-full sm:w-auto">Protocol Demo</button>
+      {/* Hero */}
+      <section className="pt-28 pb-20 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="section-badge flex items-center gap-2 justify-center">
+            <TbSparkles size={14} />
+            AI-Powered Interview Practice
+          </div>
+          <h1 className="text-6xl sm:text-7xl font-black text-black mb-7 leading-[1.1] tracking-tight">
+            Practice Interviews.<br />
+            <span className="bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">Land Dream Jobs.</span>
+          </h1>
+
+          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
+            Get real-time feedback from our AI interviewer and improve your skills before the big day. No pressure, just practice.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button className="btn-primary text-base flex items-center gap-2 group" onClick={() => navigate(user ? "/upload-resume" : "/auth")}>
+              Start Practicing Now
+              <TbArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button className="btn-secondary text-base">
+              Watch Demo
+            </button>
+          </div>
+
+          <div className="mt-12 flex items-center justify-center gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-gray-600 font-medium">1000+ interviews completed</span>
             </div>
-          </motion.div>
+            <div className="hidden sm:block w-1 h-1 bg-gray-300 rounded-full"></div>
+            <span className="hidden sm:block text-gray-600 font-medium">⭐ 4.9/5 rating</span>
+          </div>
         </div>
-        
-        {/* Abstract shapes */}
-        <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-100 rounded-full blur-[120px] opacity-30 -z-10" />
-        <div className="absolute bottom-0 right-0 translate-x-1/4 w-[400px] h-[400px] bg-indigo-100 rounded-full blur-[100px] opacity-40 -z-10" />
       </section>
 
-      {/* Feature Grid */}
-      <section className="py-32 px-10 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      {/* Features */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="section-badge">Features</span>
+            <h2 className="text-4xl font-black text-black mb-4">Why Choose Evalify</h2>
+            <p className="text-lg text-gray-600 font-medium">Everything you need to ace your interview</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}
-                className="card-base group">
-                <div className={`w-16 h-16 ${f.color} rounded-3xl flex items-center justify-center mb-10 group-hover:rotate-6 transition-transform duration-500 shadow-sm`}>
+              <div key={i} className="card-base group">
+                <div className="w-14 h-14 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-transform">
                   {f.icon}
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{f.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed font-medium">{f.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Vertical Selector Section */}
-      <CareerSelector onStart={handleStart} />
-
-      {/* Workflow Section */}
-      <section className="py-32 px-10 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-24">
-            <h2 className="section-title">Operational Workflow</h2>
-            <p className="section-desc">Follow the simulation protocol to quantify and improve your performance.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-20 relative">
-            {/* Connection line */}
-            <div className="hidden md:block absolute top-1/2 left-20 right-20 h-[2px] bg-indigo-100 -translate-y-1/2 z-0" />
-            
-            {[
-              { step: "01", title: "Analyze", desc: "Upload your resume and let the AI extract relevant questions.", img: resumeImg },
-              { step: "02", title: "Simulate", desc: "Attend a live AI-led interview with real-time feedback.", img: aiImg },
-              { step: "03", title: "Improve", desc: "Receive detailed reports to sharpen your performance.", img: confiImg },
-            ].map((s, i) => (
-              <div key={i} className="relative z-10 flex flex-col items-center text-center">
-                <div className="text-6xl font-black text-indigo-100/50 mb-6 leading-none tracking-tighter">{s.step}</div>
-                <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mb-8 shadow-premium border border-indigo-50 transition-all hover:-rotate-3">
-                  <img src={s.img} alt="" className="w-12 h-12 object-contain" />
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">{s.title}</h3>
-                <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">{s.desc}</p>
+                <h3 className="font-bold text-lg text-black mb-3">{f.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-sm font-medium">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Premium Footer */}
-      <footer className="py-20 px-10 bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:row items-center justify-between gap-12">
-            <div className="flex items-center gap-4">
-               <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center"><TbRobot size={20} /></div>
-               <span className="font-black text-xl tracking-tighter text-slate-900 uppercase">Evalify.</span>
+      {/* Career Selector */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="section-badge">Career Paths</span>
+            <h2 className="text-4xl font-black text-black mb-4">Choose Your Field</h2>
+            <p className="text-lg text-gray-600 font-medium">Tailored questions for your specific career path</p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+            {careerData.map((c) => (
+              <button key={c.name} onClick={() => setSelected(c.name)}
+                className={`p-8 rounded-2xl border-2 text-center transition-all ${
+                  selected === c.name 
+                    ? 'border-black bg-gray-50 shadow-xl scale-105' 
+                    : 'border-gray-200 hover:border-gray-400 hover:shadow-lg hover:scale-105'
+                }`}>
+                <div className="text-5xl mb-4">{c.icon}</div>
+                <div className={`font-bold text-sm ${selected === c.name ? 'text-black' : 'text-gray-700'}`}>
+                  {c.name}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {selected && (
+            <div className="mt-12 flex justify-center animate-in fade-in duration-300">
+              <button className="btn-primary text-base flex items-center gap-2 group shadow-xl" onClick={handleStart}>
+                Start {selected} Interview
+                <TbArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.4em]">© 2026 Evalify Systems Inc. / All rights reserved.</p>
-            <div className="flex gap-10 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              <a href="#" className="hover:text-indigo-600 transition">Privacy</a>
-              <a href="#" className="hover:text-indigo-600 transition">Terms</a>
-              <a href="#" className="hover:text-indigo-600 transition">Contact</a>
+          )}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20 px-6 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="section-badge">Process</span>
+            <h2 className="text-4xl font-black text-black mb-4">How It Works</h2>
+            <p className="text-lg text-gray-600 font-medium">Get started in three simple steps</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps.map((s, i) => (
+              <div key={i} className="relative">
+                {i < steps.length - 1 && (
+                  <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-gray-300 to-transparent"></div>
+                )}
+                <div className="text-center relative z-10">
+                  <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center font-black text-xl mx-auto mb-5 shadow-lg">
+                    {s.num}
+                  </div>
+                  <h3 className="font-bold text-xl text-black mb-3">{s.title}</h3>
+                  <p className="text-gray-600 leading-relaxed font-medium">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 px-6 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl font-black text-white mb-6 leading-tight">Ready to Start<br/>Practicing?</h2>
+          <p className="text-xl text-gray-300 mb-10 font-medium">Join thousands of candidates improving their interview skills every day</p>
+          <button className="bg-white text-black px-10 py-4 rounded-xl font-bold text-base hover:scale-105 transition-all shadow-2xl" onClick={() => navigate(user ? "/upload-resume" : "/auth")}>
+            Get Started Free →
+          </button>
+          <p className="text-sm text-gray-400 mt-6 font-medium">No credit card required • Free forever</p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-16 px-6 border-t border-gray-200 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            {/* Brand */}
+            <div className="col-span-1">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center">
+                  <TbRobot size={20} className="text-white" />
+                </div>
+                <span className="font-bold text-xl">Evalify</span>
+              </div>
+              <p className="text-sm text-gray-600 leading-relaxed font-medium mb-4">
+                AI-powered interview practice platform helping candidates land their dream jobs.
+              </p>
+              <div className="flex gap-3">
+                <a href="#" className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-900 hover:text-white transition">
+                  <span className="text-sm font-bold">𝕏</span>
+                </a>
+                <a href="#" className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-900 hover:text-white transition">
+                  <span className="text-sm font-bold">in</span>
+                </a>
+                <a href="#" className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-900 hover:text-white transition">
+                  <span className="text-sm font-bold">IG</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h3 className="font-bold text-sm text-black mb-4 uppercase tracking-wider">Product</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Features</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Pricing</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">How it Works</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Demo</a></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h3 className="font-bold text-sm text-black mb-4 uppercase tracking-wider">Company</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">About Us</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Careers</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Blog</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Contact</a></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="font-bold text-sm text-black mb-4 uppercase tracking-wider">Legal</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Privacy Policy</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Terms of Service</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Cookie Policy</a></li>
+                <li><a href="#" className="text-sm text-gray-600 hover:text-black transition font-medium">Refund Policy</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-500 font-medium">© 2026 Evalify. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <span className="text-xs text-gray-500 font-medium">Made with ❤️ in India</span>
+              <div className="flex gap-4 text-sm text-gray-600 font-medium">
+                <a href="#" className="hover:text-black transition">Status</a>
+                <a href="#" className="hover:text-black transition">Support</a>
+              </div>
             </div>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }
